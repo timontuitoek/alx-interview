@@ -1,33 +1,57 @@
 #!/usr/bin/python3
 """
-Determines if a given data set represents a valid UTF-8 encoding.
+Defines a function that determines whether a list of
+integers passed into it conforms to UTF-8 format.
 """
+from itertools import takewhile
+
+
+def int_to_bits(nums):
+    """
+    Helper function
+    Converts integers to binary representations.
+    """
+    for num in nums:
+        bits = []
+        mask = 1 << 8  # Because there are 8 bits per byte
+        while mask:
+            mask >>= 1
+            bits.append(bool(num & mask))
+        yield bits
 
 
 def validUTF8(data):
     """
-    Determines if a given data set represents a valid UTF-8 encoding.
+    Takes a list of integers and returns True if the list is
+    a valid UTF-8 encoding, else returns False.
+    Args:
+        data : List of integers representing a possible UTF-8 encoding
+    Returns:
+        bool : True if valid UTF-8, False otherwise
     """
+    bits = int_to_bits(data)
 
-    def valid_start(byte):
-        return bin(byte).startswith
-    ('0b' + '1' * (8 - length) + '0' * (length - 1))
+    for byte in bits:
+        # If single-byte character, it's valid. Continue.
+        if byte[0] == 0:
+            continue
 
-    length = 0  # Number of remaining bytes
-    for byte in data:
-        if length == 0:  # Start of a new character
-            if byte >> 5 == 0b110:
-                length = 1
-            elif byte >> 4 == 0b1110:
-                length = 2
-            elif byte >> 3 == 0b11110:
-                length = 3
-            elif byte >> 7 == 1:  # Single byte character
-                continue
-            else:
+        # If here, the byte is a multi-byte character.
+        ones = sum(takewhile(bool, byte))
+
+        # Check if the number of leading ones is within valid UTF-8 range.
+        if ones <= 1 or ones >= 4:  # UTF-8 can be 1 to 4 bytes long
+            return False
+
+        # Check the next bytes in the sequence for the expected pattern.
+        for _ in range(ones - 1):
+            try:
+                byte = next(bits)
+            except StopIteration:
                 return False
-        else:
-            if byte >> 6 != 0b10:
+
+            # Check if the byte starts with "10" in binary.
+            if byte[0:2] != [1, 0]:
                 return False
-            length -= 1
-    return length == 0
+
+    return True
