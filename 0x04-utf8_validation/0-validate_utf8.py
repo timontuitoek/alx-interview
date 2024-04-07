@@ -1,28 +1,19 @@
 #!/usr/bin/python3
 """
 Determines if a given data set represents a valid UTF-8 encoding.
-
-Usage: utf8_validator.py < filename
 """
 
 
 def validUTF8(data):
     """
     Determines if a given data set represents a valid UTF-8 encoding.
-
-    Args:
-        data (List[int]): List of integers representing 1 byte of data each.
-
-    Returns:
-        bool: True if data is a valid UTF-8 encoding, else False.
     """
 
-    # Function checks if a given number
-    # is a valid start of a UTF-8 character
     def valid_start(byte):
-        return bin(byte).startswith('0b' + '1' * (8 - length) + '0' * (length - 1))
+        return bin(byte).startswith
+    ('0b' + '1' * (8 - length) + '0' * (length - 1))
 
-    length = 0  # Number of remaining bytes to read for current character
+    length = 0  # Number of remaining bytes
     for byte in data:
         if length == 0:  # Start of a new character
             if byte >> 5 == 0b110:
@@ -35,8 +26,8 @@ def validUTF8(data):
                 continue
             else:
                 return False
-        else:  # Inside a multi-byte character
-            if byte >> 6 != 0b10:  # Check if byte is of form 10xxxxxx
+        else:
+            if byte >> 6 != 0b10:
                 return False
             length -= 1
-    return length == 0  # Check if all characters have been properly terminated
+    return length == 0
