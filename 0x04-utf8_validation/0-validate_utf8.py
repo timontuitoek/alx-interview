@@ -1,57 +1,61 @@
 #!/usr/bin/python3
+"""UTF-8 validation module.
 """
-Defines a function that determines whether a list of
-integers passed into it conforms to UTF-8 format.
-"""
-from itertools import takewhile
-
-
-def int_to_bits(nums):
-    """
-    Helper function
-    Converts integers to binary representations.
-    """
-    for num in nums:
-        bits = []
-        mask = 1 << 8  # Because there are 8 bits per byte
-        while mask:
-            mask >>= 1
-            bits.append(bool(num & mask))
-        yield bits
 
 
 def validUTF8(data):
+    """Checks if a list of integers are valid UTF-8 codepoints.
+    See <https://datatracker.ietf.org/doc/html/rfc3629#page-4>
     """
-    Takes a list of integers and returns True if the list is
-    a valid UTF-8 encoding, else returns False.
-    Args:
-        data : List of integers representing a possible UTF-8 encoding
-    Returns:
-        bool : True if valid UTF-8, False otherwise
-    """
-    bits = int_to_bits(data)
-
-    for byte in bits:
-        # If single-byte character, it's valid. Continue.
-        if byte[0] == 0:
+    skip = 0
+    n = len(data)
+    for i in range(n):
+        if skip > 0:
+            skip -= 1
             continue
-
-        # If here, the byte is a multi-byte character.
-        ones = sum(takewhile(bool, byte))
-
-        # Check if the number of leading ones is within valid UTF-8 range.
-        if ones <= 1 or ones >= 4:  # UTF-8 can be 1 to 4 bytes long
+        if type(data[i]) != int or data[i] < 0 or data[i] > 0x10ffff:
             return False
-
-        # Check the next bytes in the sequence for the expected pattern.
-        for _ in range(ones - 1):
-            try:
-                byte = next(bits)
-            except StopIteration:
+        elif data[i] <= 0x7f:
+            skip = 0
+        elif data[i] & 0b11111000 == 0b11110000:
+            # 4-byte utf-8 character encoding
+            span = 4
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
                 return False
-
-            # Check if the byte starts with "10" in binary.
-            if byte[0:2] != [1, 0]:
+        elif data[i] & 0b11110000 == 0b11100000:
+            # 3-byte utf-8 character encoding
+            span = 3
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
                 return False
-
+        elif data[i] & 0b11100000 == 0b11000000:
+            # 2-byte utf-8 character encoding
+            span = 2
+            if n - i >= span:
+                next_body = list(map(
+                    lambda x: x & 0b11000000 == 0b10000000,
+                    data[i + 1: i + span],
+                ))
+                if not all(next_body):
+                    return False
+                skip = span - 1
+            else:
+                return False
+        else:
+            return False
     return True
