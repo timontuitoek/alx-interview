@@ -1,11 +1,10 @@
 #!/usr/bin/python3
 """
-This script calculates the fewest number of coins needed to meet a given total amount.
+Making Change
 """
 
 
 def make_Change(coins, total):
-    # If the total amount is zero or negative, return 0
     if total <= 0:
         return 0
 
@@ -13,7 +12,6 @@ def make_Change(coins, total):
     coin = sorted(coins, reverse=True)
     counter = 0
 
-    # Greedily choose the largest denomination coins first
     for coin_value in coin:
         while total >= coin_value:
             counter += 1
