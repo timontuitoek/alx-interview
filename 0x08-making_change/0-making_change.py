@@ -4,7 +4,8 @@ Making Change: Determine the fewest number
 of coins needed to meet a given amount total.
 """
 
-def makeChange(coins, total):
+
+def make_Change(coins, total):
     # If the total amount is zero or negative, return 0
     if total <= 0:
         return 0
@@ -30,4 +31,4 @@ if __name__ == "__main__":
     # Example usage:
     coins = [1, 2, 5]
     total = 11
-    print(makeChange(coins, total))  # Output: 3
+    print(make_Change(coins, total))  # Output: 3
