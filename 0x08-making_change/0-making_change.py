@@ -6,7 +6,6 @@ of coins needed to meet a given amount total.
 
 
 def make_Change(coins, total):
-    # If the total amount is zero or negative, return 0
     if total <= 0:
         return 0
 
@@ -20,8 +19,6 @@ def make_Change(coins, total):
             coin_count += 1
             total -= coin_value
 
-    # If the total amount is fully covered by the
-    # coins, return the number of coins used
     if total == 0:
         return coin_count
     else:
