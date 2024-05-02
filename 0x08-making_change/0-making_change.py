@@ -1,31 +1,23 @@
 #!/usr/bin/python3
 """
-Making Change: Determine the fewest number
-of coins needed to meet a given amount total.
+Making Change
 """
 
 
-def make_Change(coins, total):
+def makeChange(coins, total):
     if total <= 0:
         return 0
 
     # Sorting coins in descending order
-    coins.sort(reverse=True)
-    coin_count = 0
+    coin = sorted(coins, reverse=True)
+    counter = 0
 
-    # Greedily choose the largest denomination coins first
-    for coin_value in coins:
+    for coin_value in coin:
         while total >= coin_value:
-            coin_count += 1
+            counter += 1
             total -= coin_value
 
     if total == 0:
-        return coin_count
+        return counter
     else:
         return -1
-
-if __name__ == "__main__":
-    # Example usage:
-    coins = [1, 2, 5]
-    total = 11
-    print(make_Change(coins, total))  # Output: 3
